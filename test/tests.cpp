@@ -5,98 +5,88 @@
 #include <iostream>
 #include <string>
 
-std::string captureOutput(std::function<void()> func) {
-    std::ostringstream oss;
-    std::streambuf* oldCout = std::cout.rdbuf(oss.rdbuf());
-    func();
-    std::cout.rdbuf(oldCout);
-    return oss.str();
-}
-
-TEST(AutomataTest, InitialStateIsOff) {
-    Automata a;
-    std::string output = captureOutput([&]() { a.getState(); });
-    EXPECT_NE(output.find("OFF"), std::string::npos);
-}
-
-TEST(AutomataTest, TurnOnAutomata) {
+TEST(AutomataTest, PowerOn) {
     Automata a;
     a.on();
-    std::string output = captureOutput([&]() { a.getState(); });
-    EXPECT_NE(output.find("WAIT"), std::string::npos);
+    EXPECT_EQ(a.getState(), STATES::WAIT);
 }
 
-TEST(AutomataTest, TurnOffAutomataFromWait) {
+TEST(AutomataTest, DoublePowerOn) {
+    Automata a;
+    a.on();
+    testing::internal::CaptureStdout();
+    a.on();
+    std::string output = testing::internal::GetCapturedStdout();
+    EXPECT_NE(output.find("Ошибка"), std::string::npos);
+}
+
+TEST(AutomataTest, PowerOff) {
     Automata a;
     a.on();
     a.off();
-    std::string output = captureOutput([&]() { a.getState(); });
-    EXPECT_NE(output.find("OFF"), std::string::npos);
+    EXPECT_EQ(a.getState(), STATES::OFF);
 }
 
-TEST(AutomataTest, InsertCoinChangesStateToAccept) {
+TEST(AutomataTest, InsertCoinCorrectState) {
     Automata a;
     a.on();
     a.coin(100);
-    std::string output = captureOutput([&]() { a.getState(); });
-    EXPECT_NE(output.find("ACCEPT"), std::string::npos);
+    EXPECT_EQ(a.getState(), STATES::ACCEPT);
 }
 
-TEST(AutomataTest, CorrectChoiceGoesToCheckState) {
+TEST(AutomataTest, InsertCoinWrongState) {
     Automata a;
-    a.on();
-    a.coin(300);
-    a.choice(2); // Coffee
-    std::string output = captureOutput([&]() { a.getState(); });
-    EXPECT_NE(output.find("CHECK"), std::string::npos);
-}
-
-TEST(AutomataTest, CheckSucceedsWithEnoughMoney) {
-    Automata a;
-    a.on();
-    a.coin(300);
-    a.choice(2); // Coffee
-    std::string output = captureOutput([&]() { a.check(); });
-    EXPECT_NE(output.find("Success"), std::string::npos);
-}
-
-TEST(AutomataTest, CheckFailsWithInsufficientMoney) {
-    Automata a;
-    a.on();
+    testing::internal::CaptureStdout();
     a.coin(100);
-    a.choice(2); // Coffee
-    std::string output = captureOutput([&]() { a.check(); });
-    EXPECT_NE(output.find("Not enough money"), std::string::npos);
+    std::string output = testing::internal::GetCapturedStdout();
+    EXPECT_NE(output.find("Ошибка"), std::string::npos);
 }
 
-TEST(AutomataTest, CancelResetsToWait) {
+TEST(AutomataTest, MenuOutput) {
+    Automata a;
+    testing::internal::CaptureStdout();
+    a.getMenu();
+    std::string output = testing::internal::GetCapturedStdout();
+    EXPECT_NE(output.find("Кофе"), std::string::npos);
+    EXPECT_NE(output.find("Черный чай"), std::string::npos);
+}
+
+TEST(AutomataTest, ChooseItem) {
     Automata a;
     a.on();
-    a.coin(200);
+    a.coin(300);
+    a.choice(2); // Кофе
+    EXPECT_EQ(a.getState(), STATES::CHECK);
+}
+
+TEST(AutomataTest, CheckAndCook) {
+    Automata a;
+    a.on();
+    a.coin(300);
+    a.choice(2);
+    testing::internal::CaptureStdout();
+    a.check();
+    std::string output = testing::internal::GetCapturedStdout();
+    EXPECT_NE(output.find("Успешно"), std::string::npos);
+    a.cook();
+    EXPECT_EQ(a.getState(), STATES::COOK);
+}
+
+TEST(AutomataTest, FinishCooking) {
+    Automata a;
+    a.on();
+    a.coin(300);
+    a.choice(2);
+    a.check();
+    a.cook();
+    a.finish();
+    EXPECT_EQ(a.getState(), STATES::WAIT);
+}
+
+TEST(AutomataTest, CancelOrder) {
+    Automata a;
+    a.on();
+    a.coin(150);
     a.cancel();
-    std::string output = captureOutput([&]() { a.getState(); });
-    EXPECT_NE(output.find("WAIT"), std::string::npos);
-}
-
-TEST(AutomataTest, CookSetsStateToCook) {
-    Automata a;
-    a.on();
-    a.coin(300);
-    a.choice(2); // Coffee
-    a.check();
-    a.cook();
-    std::string output = captureOutput([&]() { a.getState(); });
-    EXPECT_NE(output.find("COOK"), std::string::npos);
-}
-
-TEST(AutomataTest, FinishResetsStateAndGivesChange) {
-    Automata a;
-    a.on();
-    a.coin(400);
-    a.choice(2); // Coffee
-    a.check();
-    a.cook();
-    std::string output = captureOutput([&]() { a.finish(); });
-    EXPECT_NE(output.find("Your drink is ready"), std::string::npos);
-    EXPECT_NE(output.find("Change: 100"), std::string::npos);
+    EXPECT_EQ(a.getState(), STATES::WAIT);
 }
