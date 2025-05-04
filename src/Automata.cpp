@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-using namespace std;
+using std::cout;
 
 Automata::Automata() {
     cash = 0;
@@ -20,7 +20,7 @@ void Automata::on() {
         state = STATES::WAIT;
         cout << "Автомат в  режиме ожидания.\n";
     } else {
-        cout<<"Ошибка.\n";
+        cout << "Ошибка.\n";
     }
 }
 
@@ -29,7 +29,7 @@ void Automata::off() {
         state = STATES::OFF;
         cout << "Автомат выключен.\n";
     } else {
-        cout<<"Ошибка.\n";
+        cout << "Ошибка.\n";
     }
 }
 
@@ -37,14 +37,14 @@ void Automata::coin(int sum) {
     if (state == STATES::WAIT || state == STATES::ACCEPT) {
         state = STATES::ACCEPT;
         cash += sum;
-        cout<<"Текущая сумма: "<<cash<<".\n";
+        cout << "Текущая сумма: " << cash << ".\n";
     } else {
-        cout<<"Ошибка.\n";
+        cout << "Ошибка.\n";
     }
 }
 
 void Automata::getMenu() const {
-    cout<<"Меню:\n";
+    cout << "Меню:\n";
     for (int i = 0; i < menu.size(); i++) {
         cout << menu[i] << ": " << prices[i] << "\n";
     }
@@ -59,9 +59,9 @@ void Automata::choice(int itemIndex) {
         state = STATES::CHECK;
         currChoice = itemIndex;
         cout << "Твой выбор: " << menu[currChoice] <<
-            " - " << prices[currChoice]<< " руб.\n";
+            " - " << prices[currChoice] << " руб.\n";
     } else {
-        cout<<"Ошибка.\n";
+        cout << "Ошибка.\n";
     }
 }
 
@@ -69,24 +69,23 @@ void Automata::check() {
     if (state == STATES::CHECK) {
         if (cash >= prices[currChoice]) {
             cout << "Успешно, начинаем готовить.\n"<<
-            "Ваша сдача: "<<cash - prices[currChoice]<<"руб.\n";
-            
+            "Ваша сдача: " << cash - prices[currChoice] << "руб.\n";
         } else {
             cout << "Недостаточно средств.\n";
         }
     } else {
-        cout<<"Ошибка.\n";
+        cout << "Ошибка.\n";
     }
 }
 
 void Automata::cancel() {
-    if (state ==STATES::CHECK || state == STATES::ACCEPT) {
-        cout<<"Заказ отменен. Возврат денег - "<< cash<<"руб.\n";
-        cash =0;
+    if (state == STATES::CHECK || state == STATES::ACCEPT) {
+        cout << "Заказ отменен. Возврат денег - " << cash << "руб.\n";
+        cash = 0;
         state = STATES::WAIT;
         currChoice =-1;
     } else {
-        cout<<"Ошибка.\n";
+        cout << "Ошибка.\n";
     }
 }
 
@@ -95,7 +94,7 @@ void Automata::cook() {
         state = STATES::COOK;
         cout << "В процессе готовки.\n";
     } else {
-        cout<<"Ошибка.\n";
+        cout << "Ошибка.\n";
     }
 }
 
@@ -107,6 +106,6 @@ void Automata::finish() {
         cash = 0;
         currChoice = -1;
     } else {
-        cout<<"Ошибка.\n";
+        cout << "Ошибка.\n";
     }
 }

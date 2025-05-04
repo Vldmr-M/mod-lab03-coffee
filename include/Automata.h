@@ -4,11 +4,11 @@
 #include <vector>
 
 enum class STATES {
-    OFF = 'OFF',
-    WAIT='WAIT',
-    ACCEPT='ACPT',
-    CHECK='CHCK',
-    COOK = 'COOK'
+    OFF ,
+    WAIT,
+    ACCEPT,
+    CHECK,
+    COOK
 };
 
 class Automata {
