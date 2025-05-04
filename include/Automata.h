@@ -4,11 +4,11 @@
 #include <vector>
 
 enum class STATES {
-    OFF,
-    WAIT,
-    ACCEPT,
-    CHECK,
-    COOK
+    OFF = 'OFF',
+    WAIT='WAIT',
+    ACCEPT='ACPT',
+    CHECK='CHCK',
+    COOK = 'COOK'
 };
 
 class Automata {
@@ -26,7 +26,7 @@ class Automata {
     void coin(int amount);
     void choice(int itemIndex);
     void getMenu() const;
-    void getState() const;
+    STATES getState() const;
     void check();
     void cancel();
     void cook();
